@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TractoGestión - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-md">
+        <h1 class="text-2xl font-bold text-blue-600 mb-4">TractoGestión: Control de Rentabilidad</h1>
+        
+        <div class="grid grid-cols-2 gap-4 mb-6 p-4 border rounded">
+            <div>
+                <label class="block text-sm font-medium">Valor del Flete ($)</label>
+                <input type="number" id="flete" class="w-full border p-2 rounded" value="3500000">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Gastos (Peajes + ACPM)</label>
+                <input type="number" id="gastos" class="w-full border p-2 rounded" value="2100000">
+            </div>
+            <button onclick="calcular()" class="col-span-2 bg-blue-500 text-white py-2 rounded hover:bg-blue-700">Calcular Rentabilidad</button>
+        </div>
+
+        <div id="resultado" class="text-center p-6 bg-blue-50 rounded-lg hidden">
+            <h2 class="text-xl">Utilidad Neta del Viaje:</h2>
+            <p id="utilidad" class="text-4xl font-bold text-green-600">$ 0</p>
+            <p id="mensaje" class="mt-2 text-gray-600 italic"></p>
+        </div>
+    </div>
+
+    <script>
+        function calcular() {
+            const flete = document.getElementById('flete').value;
+            const gastos = document.getElementById('gastos').value;
+            const utilidad = flete - gastos;
+            
+            document.getElementById('resultado').classList.remove('hidden');
+            document.getElementById('utilidad').innerText = '$ ' + utilidad.toLocaleString();
+            document.getElementById('mensaje').innerText = utilidad > 1000000 ? "✅ Viaje Altamente Rentable" : "⚠️ Revisar costos operativos";
+        }
+    </script>
+</body>
+</html>
