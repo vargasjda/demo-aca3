@@ -2,42 +2,273 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>TractoGestión - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TractoGestión Pro - ACA 3</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hidden { display: none !important; }
+    </style>
 </head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-md">
-        <h1 class="text-2xl font-bold text-blue-600 mb-4">TractoGestión: Control de Rentabilidad</h1>
-        
-        <div class="grid grid-cols-2 gap-4 mb-6 p-4 border rounded">
-            <div>
-                <label class="block text-sm font-medium">Valor del Flete ($)</label>
-                <input type="number" id="flete" class="w-full border p-2 rounded" value="3500000">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Gastos (Peajes + ACPM)</label>
-                <input type="number" id="gastos" class="w-full border p-2 rounded" value="2100000">
-            </div>
-            <button onclick="calcular()" class="col-span-2 bg-blue-500 text-white py-2 rounded hover:bg-blue-700">Calcular Rentabilidad</button>
-        </div>
+<body class="bg-gray-900 text-gray-100 font-sans">
 
-        <div id="resultado" class="text-center p-6 bg-blue-50 rounded-lg hidden">
-            <h2 class="text-xl">Utilidad Neta del Viaje:</h2>
-            <p id="utilidad" class="text-4xl font-bold text-green-600">$ 0</p>
-            <p id="mensaje" class="mt-2 text-gray-600 italic"></p>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-blue-900">
+        <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-96 border border-gray-700">
+            <div class="text-center mb-8">
+                <i class="fas fa-truck-moving text-5xl text-blue-500 mb-4"></i>
+                <h1 class="text-2xl font-bold tracking-tight">TractoGestión</h1>
+                <p class="text-gray-400 text-sm italic">Ingeniería para transportadores</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" placeholder="Usuario / Cédula" class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none transition">
+                <input type="password" placeholder="Contraseña" class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none transition">
+                <button onclick="entrarAlSistema()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold shadow-lg transform active:scale-95 transition">
+                    Ingresar al Sistema
+                </button>
+            </div>
         </div>
     </div>
 
-    <script>
-        function calcular() {
-            const flete = document.getElementById('flete').value;
-            const gastos = document.getElementById('gastos').value;
-            const utilidad = flete - gastos;
+    <div id="main-app" class="hidden min-h-screen flex flex-col">
+        <nav class="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center sticky top-0 z-50">
+            <span class="font-bold text-blue-400 flex items-center gap-2">
+                <i class="fas fa-microchip"></i> DEMO FUNCIONAL ACA 3
+            </span>
+            <button onclick="location.reload()" class="text-xs bg-gray-700 hover:bg-red-900 px-3 py-1 rounded transition">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </nav>
+
+        <div class="flex bg-gray-800 border-b border-gray-700">
+            <button onclick="cambiarPestana('tab-viajes', this)" class="tab-btn flex-1 p-4 border-b-2 border-blue-500 text-blue-500 font-bold">Viajes</button>
+            <button onclick="cambiarPestana('tab-mantenimiento', this)" class="tab-btn flex-1 p-4 border-b-2 border-transparent hover:text-gray-300">Mantenimiento</button>
+            <button onclick="cambiarPestana('tab-documentos', this)" class="tab-btn flex-1 p-4 border-b-2 border-transparent hover:text-gray-300">Documentos</button>
+        </div>
+
+        <main class="p-6 flex-grow max-w-4xl mx-auto w-full">
             
-            document.getElementById('resultado').classList.remove('hidden');
-            document.getElementById('utilidad').innerText = '$ ' + utilidad.toLocaleString();
-            document.getElementById('mensaje').innerText = utilidad > 1000000 ? "✅ Viaje Altamente Rentable" : "⚠️ Revisar costos operativos";
+            <section id="tab-viajes" class="tab-content space-y-6">
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
+                    <h2 class="text-lg font-bold mb-4 text-blue-300">Registro de Operación Financiera</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="text" id="ruta" placeholder="Ruta (Ej: BOG - MED)" class="p-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none">
+                        <input type="number" id="flete" placeholder="Flete ($)" class="p-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none">
+                        <input type="number" id="gastos" placeholder="Gastos ($)" class="p-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none">
+                        <button onclick="guardarViaje()" class="md:col-span-3 bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold transition">Calcular y Guardar</button>
+                    </div>
+                </div>
+                <div class="bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-700">
+                            <tr><th class="p-3 text-left">Ruta</th><th class="p-3">Flete</th><th class="p-3">Gastos</th><th class="p-3 text-green-400">Utilidad</th></tr>
+                        </thead>
+                        <tbody id="lista-viajes"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="tab-mantenimiento" class="tab-content hidden space-y-6">
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
+                    <h2 class="text-lg font-bold mb-4 text-orange-400">Control de Mantenimiento Preventivo</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input type="number" id="km-actual" placeholder="Kilometraje Actual" class="p-2 rounded bg-gray-700 border border-gray-600 outline-none">
+                        <input type="number" id="km-proximo" placeholder="KM Próximo Servicio" class="p-2 rounded bg-gray-700 border border-gray-600 outline-none">
+                        <button onclick="guardarManto()" class="md:col-span-2 bg-orange-600 hover:bg-orange-700 py-2 rounded font-bold transition">Actualizar Estado</button>
+                    </div>
+                </div>
+                <div id="manto-status" class="bg-gray-800 p-8 rounded-xl border border-gray-700 text-center">
+                    <p class="text-gray-500 italic">No hay datos registrados aún.</p>
+                </div>
+            </section>
+
+            <section id="tab-documentos" class="tab-content hidden space-y-6">
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700">
+                    <h2 class="text-lg font-bold mb-4 text-green-400">Vencimiento de Documentos</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <select id="doc-tipo" class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                            <option>SOAT</option><option>Tecnomecánica</option><option>Póliza RCE</option>
+                        </select>
+                        <input type="date" id="doc-fecha" class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                        <button onclick="guardarDoc()" class="bg-green-600 hover:bg-green-700 py-2 rounded font-bold">Registrar</button>
+                    </div>
+                </div>
+                <div id="lista-docs" class="grid gap-3"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Función para entrar (Login forzado)
+        function entrarAlSistema() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+            document.getElementById('main-app').classList.remove('hidden');
+        }
+
+        // Función para navegar entre pestañas
+        function cambiarPestana(idSeccion, boton) {
+            // Ocultar todas las secciones
+            const secciones = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < secciones.length; i++) {
+                secciones[i].classList.add('hidden');
+            }
+            // Quitar estilos a todos los botones
+            const botones = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < botones.length; i++) {
+                botones[i].classList.remove('border-blue-500', 'text-blue-500');
+                botones[i].classList.add('border-transparent');
+            }
+            // Mostrar la seleccionada
+            document.getElementById(idSeccion).classList.remove('hidden');
+            boton.classList.add('border-blue-500', 'text-blue-500');
+            boton.classList.remove('border-transparent');
+        }
+
+        // Módulo de Viajes
+        function guardarViaje() {
+            const r = document.getElementById('ruta').value;
+            const f = document.getElementById('flete').value;
+            const g = document.getElementById('gastos').value;
+            
+            if(r && f && g) {
+                const util = f - g;
+                const fila = `<tr class="border-b border-gray-700">
+                    <td class="p-3 font-bold">${r}</td>
+                    <td class="p-3">$${Number(f).toLocaleString()}</td>
+                    <td class="p-3 text-red-400">$${Number(g).toLocaleString()}</td>
+                    <td class="p-3 text-green-400 font-bold">$${util.toLocaleString()}</td>
+                </tr>`;
+                document.getElementById('lista-viajes').innerHTML += fila;
+                // Limpiar campos
+                document.getElementById('ruta').value = ""; document.getElementById('flete').value = ""; document.getElementById('gastos').value = "";
+            } else {
+                alert("Por favor llena todos los campos del viaje");
+            }
+        }
+
+        // Módulo de Mantenimiento
+        function guardarManto() {
+            const actual = document.getElementById('km-actual').value;
+            const proximo = document.getElementById('km-proximo').value;
+            
+            if(actual && proximo) {
+                const resta = proximo - actual;
+                const color = resta < 1000 ? 'text-red-500' : 'text-green-500';
+                const aviso = resta < 1000 ? 'REVISIÓN URGENTE' : 'ESTADO OPERATIVO';
+                
+                document.getElementById('manto-status').innerHTML = `
+                    <div class="text-5xl font-black ${color}">${resta.toLocaleString()} KM</div>
+                    <div class="mt-2 font-bold uppercase tracking-widest">${aviso}</div>
+                    <p class="text-xs text-gray-400 mt-2 text-center">Kilómetros faltantes para el próximo servicio técnico.</p>
+                `;
+            }
+        }
+
+        // Módulo de Documentos
+        function guardarDoc() {
+            const tipo = document.getElementById('doc-tipo').value;
+            const fecha = document.getElementById('doc-fecha').value;
+            
+            if(fecha) {
+                const hoy = new Date();
+                const venci = new Date(fecha);
+                const diff = Math.ceil((venci - hoy) / (1000*60*60*24));
+                const alertClass = diff < 15 ? 'border-red-500 bg-red-900/20' : 'border-green-500 bg-green-900/20';
+                
+                const card = `<div class="p-4 rounded-lg border-l-4 ${alertClass} flex justify-between items-center shadow-lg">
+                    <div><p class="font-bold uppercase text-sm">${tipo}</p><p class="text-[10px] text-gray-400">Vence: ${fecha}</p></div>
+                    <div class="text-right"><p class="text-2xl font-bold">${diff}</p><p class="text-[9px]">DÍAS RESTANTES</p></div>
+                </div>`;
+                document.getElementById('lista-docs').innerHTML += card;
+            }
         }
     </script>
+    <script>
+    // 1. INICIO DE SESIÓN SIMULADO
+    function entrarAlSistema() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+        document.getElementById('main-app').classList.remove('hidden');
+        
+        // Al entrar, cargamos los datos simulados automáticamente
+        cargarDatosSimulados();
+    }
+
+    // 2. DATOS PRE-CARGADOS (Materia prima del ACA 1 y 2)
+    function cargarDatosSimulados() {
+        // Viajes simulados
+        const viajesIniciales = [
+            { r: "Bogotá - Buenaventura", f: 4500000, g: 2800000 },
+            { r: "Medellín - Cartagena", f: 3800000, g: 2100000 },
+            { r: "Cali - Ipiales", f: 2200000, g: 1350000 }
+        ];
+        viajesIniciales.forEach(v => insertarFilaViaje(v.r, v.f, v.g));
+
+        // Mantenimiento simulado (Estado inicial)
+        document.getElementById('km-actual').value = 125400;
+        document.getElementById('km-proximo').value = 126000;
+        updateMantoVisual(125400, 126000);
+
+        // Documentos simulados
+        insertarCardDoc("SOAT", "2025-12-15");
+        insertarCardDoc("Tecnomecánica", "2025-02-10");
+    }
+
+    // 3. LÓGICA DE NAVEGACIÓN
+    function cambiarPestana(idSeccion, boton) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('border-blue-500', 'text-blue-500');
+            b.classList.add('border-transparent');
+        });
+        document.getElementById(idSeccion).classList.remove('hidden');
+        boton.classList.add('border-blue-500', 'text-blue-500');
+    }
+
+    // 4. FUNCIONES DE APOYO (DOM)
+    function guardarViaje() {
+        const r = document.getElementById('ruta').value, f = document.getElementById('flete').value, g = document.getElementById('gastos').value;
+        if(r && f && g) { insertarFilaViaje(r, f, g); }
+    }
+
+    function insertarFilaViaje(r, f, g) {
+        const util = f - g;
+        const fila = `<tr class="border-b border-gray-700">
+            <td class="p-3 font-bold">${r}</td>
+            <td class="p-3">$${Number(f).toLocaleString()}</td>
+            <td class="p-3 text-red-400">$${Number(g).toLocaleString()}</td>
+            <td class="p-3 text-green-400 font-bold">$${util.toLocaleString()}</td>
+        </tr>`;
+        document.getElementById('lista-viajes').insertAdjacentHTML('afterbegin', fila);
+    }
+
+    function guardarManto() {
+        updateMantoVisual(document.getElementById('km-actual').value, document.getElementById('km-proximo').value);
+    }
+
+    function updateMantoVisual(act, prox) {
+        const diff = prox - act;
+        const color = diff < 1000 ? 'text-red-500' : 'text-green-500';
+        document.getElementById('manto-status').innerHTML = `
+            <div class="text-5xl font-black ${color}">${diff.toLocaleString()} KM</div>
+            <div class="mt-2 font-bold uppercase">${diff < 1000 ? 'ALERTA: CAMBIO URGENTE' : 'ESTADO OPERATIVO'}</div>
+        `;
+    }
+
+    function guardarDoc() {
+        insertarCardDoc(document.getElementById('doc-tipo').value, document.getElementById('doc-fecha').value);
+    }
+
+    function insertarCardDoc(tipo, fecha) {
+        const hoy = new Date(), venci = new Date(fecha), diff = Math.ceil((venci - hoy) / (1000*60*60*24));
+        const c = diff < 15 ? 'border-red-500 bg-red-900/20' : 'border-green-500 bg-green-900/20';
+        document.getElementById('lista-docs').innerHTML += `
+            <div class="p-4 rounded-lg border-l-4 ${c} flex justify-between items-center shadow-lg">
+                <div><p class="font-bold uppercase text-sm">${tipo}</p><p class="text-[10px] text-gray-400">Vence: ${fecha}</p></div>
+                <div class="text-right"><p class="text-2xl font-bold">${diff}</p><p class="text-[9px]">DÍAS</p></div>
+            </div>`;
+    }
+</script>
 </body>
 </html>
